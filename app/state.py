@@ -2,31 +2,28 @@ from typing import TypedDict, Optional
 
 
 class AgentState(TypedDict, total=False):
-    # Original user input
     user_query: str
-
-    # Language selected in the UI
     selected_language: str
-
-    # Language detected by the agent
     detected_language: str
 
-    # Banking classification
+    # Banking routing
     is_banking: bool
     banking_reason: str
 
-    # Banking intent
+    # Intent classification
     intent: str
     intent_confidence: float
 
-    # English version used by the LLM
-    english_query: str
+    # Confidence handling
+    needs_clarification: bool
+    clarification_question: str
 
-    # LLM-generated response
+    # LLM processing
+    english_query: str
     llm_response: str
 
-    # Final response shown to the user
+    # Final response
     final_response: str
 
-    # Error information
+    # Error handling
     error: Optional[str]
