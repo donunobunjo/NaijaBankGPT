@@ -1,0 +1,12 @@
+langgraph
+langchain
+langchain-core
+langchain-groq
+transformers
+huggingface_hub
+sentencepiece
+accelerate
+torch
+gradio
+python-dotenv
+scikit-learn    
