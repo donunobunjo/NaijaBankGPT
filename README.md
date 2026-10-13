@@ -1,264 +1,189 @@
-<p align="right">
-  <a href="https://drive.google.com/file/d/1OEciDHfUzEhnkrhlSo9Ycyjl34V2ZXem/view?usp=drive_link">📄 View My Resume</a>
-</p>
+# NaijaBankGPT 🇳🇬
+
+**A multilingual AI banking assistant for Nigerian languages**\
+**Status: 🚧 Work in Progress**
+
+NaijaBankGPT is an AI-agent project designed to help users describe
+common banking questions in English, Yoruba, Hausa, or Igbo and receive
+useful guidance in their selected language. It combines a fine-tuned
+multilingual banking-intent classifier with a translation component and
+an LLM-powered response workflow.
+
+> **Work in progress:** The intent-classification model has been
+> fine-tuned and tested, and the initial LangGraph workflow is in place.
+> However, the full assistant is not yet complete: N-ATLaS translation
+> is not integrated, the LLM response-generation step is not connected,
+> and end-to-end multilingual conversations have not yet been validated.
+> The project is therefore still under active development.
+
+## Project Goals
+
+-   Recognize 77 common banking intents using the
+    `NaijaMultilingualBank` classifier.
+-   Support English, Yoruba, Hausa, and Igbo interactions.
+-   Translate non-English queries into English and translate generated
+    answers back into the selected language.
+-   Use LangGraph to coordinate routing, intent classification,
+    clarification, translation, and response generation.
+-   Provide a simple chat interface with Gradio.
+-   Give general banking guidance without claiming access to real bank
+    accounts, balances, or transaction systems.
+
+## How It Is Intended to Work
+
+1.  The user enters a question and selects a language.
+2.  A routing step checks whether the question appears to be
+    banking-related.
+3.  `NaijaMultilingualBank` predicts the banking intent and confidence.
+4.  If confidence is low, the assistant asks the user to clarify.
+5.  N-ATLaS translates the query into English when necessary.
+6.  An LLM accessed through Groq generates a helpful response.
+7.  N-ATLaS translates the answer into the selected language when
+    necessary.
+8.  Gradio presents the response to the user.
+
+*Steps involving N-ATLaS and LLM response generation are planned
+integrations and are not yet fully implemented.*
+
+## Current Progress
+
+-   [x] Fine-tuned `NaijaMultilingualBank` for 77 Banking77 intents
+    across English, Yoruba, Hausa, and Igbo.
+-   [x] Evaluated the classifier on a held-out test set.
+-   [x] Downloaded and verified the model for local CPU inference.
+-   [x] Created the initial LangGraph state, banking router,
+    intent-classification node, confidence-based clarification path, and
+    non-banking response.
+-   [x] Added a translation-service interface to prepare for N-ATLaS
+    integration.
+-   [ ] Integrate and validate N-ATLaS translation.
+-   [ ] Connect the LLM response-generation step through Groq.
+-   [ ] Complete the end-to-end LangGraph workflow.
+-   [ ] Build and test the Gradio chatbot interface.
+-   [ ] Run multilingual end-to-end tests and document deployment.
+
+## Technology Stack
+
+-   **Language:** Python
+-   **Agent orchestration:** LangGraph, LangChain
+-   **Intent classification:** PyTorch, Hugging Face Transformers, XLM-R
+-   **Classifier model:**
+    [NaijaMultilingualBank](https://huggingface.co/Donoe/NaijaMultilingualBank)
+-   **Multilingual dataset:** [Multilingual Nigerian
+    Banking77](https://huggingface.co/datasets/Donoe/multilingual-nigerian-banking77)
+-   **Translation (planned):**
+    [NCAIR1/N-ATLaS](https://huggingface.co/NCAIR1/N-ATLaS)
+-   **LLM inference (planned):** Groq API with a compatible Llama model
+-   **User interface (planned):** Gradio
+-   **Configuration:** python-dotenv
+
+## Repository Structure
+
+``` text
+NaijaBankGPT/
+├── app/
+│   ├── nodes/
+│   │   ├── intent.py
+│   │   ├── router.py
+│   │   └── translation.py
+│   ├── graph.py
+│   └── state.py
+├── tests/
+├── local_model/        # Downloaded model files; excluded from Git
+├── gradio_app.py       # Planned/under development
+├── requirements.txt
+├── .env                # Local secrets; never commit
+└── .gitignore
+```
+
+The structure may change as implementation progresses. Do not commit
+`.env`, access tokens, or large local model files.
+
+## Setup
 
-# 👋 Unobunjo Don
-## AI/ML Engineer • Data Analyst • Trainer
+### 1. Clone the repository
 
-I build **AI-powered applications and data solutions that solve practical problems**, with a focus on Large Language Models, Generative AI, NLP, Machine Learning, Data Analytics, Business Intelligence, and intelligent software systems.
+``` bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd NaijaBankGPT
+```
 
-My portfolio demonstrates my journey from **data → models → AI applications → deployment**, combining machine learning expertise with software engineering and analytics skills.
+### 2. Create and activate a virtual environment
 
----
+**Windows PowerShell:**
 
-# 💼 Project Portfolio
+``` powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
 
-## 🤖 Agentic AI & Generative AI Projects
+### 3. Install dependencies
 
-### 1. DocuMind AI — Intelligent Document Q&A Platform
+``` powershell
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-#### Overview
-**DocuMind AI** is a production-ready Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and interact with them using natural language. Instead of relying solely on an LLM's pre-trained knowledge, the system retrieves relevant information directly from the uploaded documents and uses it as context to generate grounded responses.
+### 4. Configure environment variables
 
-#### Stack
-- Hugging Face
-- BAAI/bge-small-en-v1.5 (Embedding Model)
-- openai/gpt-oss-20b(LLM)
-- React
-- FastAPI
-- Chroma
-- LangChain
-- Python
+Create a `.env` file in the project root for the API credentials needed
+by integrations as they are connected. For example:
 
-#### Links
-- **GitHub:** [Repo](https://github.com/donunobunjo/DocuMinde_AI.git)
-- **Live Demo:** [Click](https://documind-ai-vavu.onrender.com)
-- 
+``` env
+HF_TOKEN=your_hugging_face_token
+GROQ_API_KEY=your_groq_api_key
+```
 
----
+Only add the variables you need for the feature you are testing. Keep
+`.env` private and never commit real tokens.
 
-### NaijaBankGPT — Multilingual Nigerian Banking AI Agent
+### 5. Add the classifier model
 
-> **Status: Work in Progress**
+The local development setup expects the `NaijaMultilingualBank` model
+files in `local_model/`. Download the model from the [Hugging Face model
+repository](https://huggingface.co/Donoe/NaijaMultilingualBank) and
+place the required files there. This folder is excluded from Git because
+the model weights are large.
 
-#### Overview
-NaijaBankGPT is a multilingual AI agent being developed to help users get banking guidance in English, Yoruba, Hausa, and Igbo. It combines a fine-tuned banking-intent classifier with a planned translation and response-generation workflow, orchestrated using LangGraph. The project is still in development; translation and full response-generation integration are not yet complete.
+### 6. Run the current intent test
 
-#### Stack
-- Python
-- PyTorch
-- Hugging Face Transformers
-- NaijaMultilingualBank (fine-tuned XLM-RoBERTa intent classifier)
-- NCAIR1/N-ATLaS (planned translation integration)
-- LangGraph
-- Groq / Llama (planned response generation)
-- Gradio (planned chatbot interface)
-- Hugging Face Hub
-- python-dotenv
+``` powershell
+python -m tests.test_intent
+```
 
-#### Links
-- **GitHub:** 
-- **Hugging Face Model:** [NaijaMultilingualBank](https://huggingface.co/Donoe/NaijaMultilingualBank)
-- **Hugging Face Dataset:** [Multilingual Nigerian Banking77](https://huggingface.co/datasets/Donoe/multilingual-nigerian-banking77)
-- **Live Demo:** Not available yet — work in progress
+The full chatbot is not yet ready for production use. Translation, LLM
+response generation, the completed Gradio interface, and end-to-end
+validation remain in progress.
 
----
+## Safety and Scope
 
+NaijaBankGPT is intended to provide general information about banking
+issues. It does not connect to real bank systems and cannot verify
+account balances, initiate transfers, inspect private transactions, or
+change account details. Users should contact their bank through official
+channels for account-specific or urgent issues.
 
-### 2. Banking77 Nigerian Languages Translation
+## Links
 
-#### Overview
-This project focuses on expanding multilingual NLP resources by translating the **BANKING77 intent-classification dataset** into major Nigerian languages — **Yoruba, Igbo, and Hausa** — using the **NCAIR1/N-ATLaS Large Language Model**.
+-   **Model:** [NaijaMultilingualBank on Hugging
+    Face](https://huggingface.co/Donoe/NaijaMultilingualBank)
+-   **Dataset:** [Multilingual Nigerian Banking77 on Hugging
+    Face](https://huggingface.co/datasets/Donoe/multilingual-nigerian-banking77)
+-   **Translation model:**
+    [NCAIR1/N-ATLaS](https://huggingface.co/NCAIR1/N-ATLaS)
+-   **GitHub:** Add repository URL after publishing
+-   **Live demo:** Not available yet; planned
 
-The resulting dataset is designed to support research and development of multilingual AI systems for **African languages and local financial-service use cases**.
+## Contributing
 
-#### Stack
-- Python
-- PyTorch
-- Hugging Face Datasets
-- Hugging Face Transformers
-- NCAIR1/N-ATLaS Large Language Model
-- Pandas
-- Natural Language Processing (NLP)
-- Dataset Engineering
-- Multilingual AI
-- Intent Classification
+This project is actively being developed. Issues, suggestions, and
+constructive feedback about multilingual coverage, intent-classification
+quality, translation reliability, and user experience are welcome.
 
-#### Links
-- **Google Colab:** [Open Notebook](https://colab.research.google.com/drive/10YAUvFF5LUB1S3llYa6FFLJZNwG2pWm0?usp=sharing)
-- **Dataset:** [Hugging Face Dataset](https://huggingface.co/datasets/Donoe/multilingual-nigerian-banking77)
+## License
 
----
-
-### 3. AI-Powered RAG Document Assistant — AskMyDocs
-
-#### Overview
-**AskMyDocs** is a full-stack AI-powered document question-answering system built using a **Retrieval-Augmented Generation (RAG)** architecture.
-
-Users can upload PDF documents and interact with them through a conversational chatbot interface. Instead of relying solely on general model knowledge, the application retrieves relevant information directly from uploaded documents and uses that context to generate responses.
-
-The application combines a **React frontend** with a **FastAPI backend**, local Large Language Models through **Ollama**, LangChain workflows, vector embeddings, and **ChromaDB** for semantic retrieval.
-
-#### Stack
-- Python
-- React
-- FastAPI
-- LangChain
-- Ollama
-- Llama 3.2
-- Nomic Embed Text
-- ChromaDB
-- Retrieval-Augmented Generation (RAG)
-- Local LLM Deployment
-- Vector Embeddings
-- REST APIs
-
-#### Links
-- **GitHub:** [View Repository](https://github.com/donunobunjo/AskMyDocs)
-- **Loom:** [Watch Demo](https://www.loom.com/share/94ccaa0d632341979ee22a6ebd740387)
-
-
----
-
-## 📊 Business Intelligence & Power BI Projects
-
-### 4. S&P Global Analytics Dashboard
-
-#### Overview
-This project focuses on exploratory data analysis and interactive visualization of the **S&P Global stock market dataset**, covering five years of historical stock prices from **2013–2018** for companies in the S&P 500 index.
-
-The analysis explores stock price movements, trading activity, volatility, and moving-average patterns through interactive Power BI visualizations and supporting data analysis.
-
-#### Stack
-- Python
-- Pandas
-- Exploratory Data Analysis (EDA)
-- Power BI
-- Data Visualization
-- Business Intelligence
-
-#### Links
-- **GitHub:** [View Repository](https://github.com/donunobunjo/S-P-Global.git)
-- **Google Colab:** [Open Notebook](https://colab.research.google.com/drive/1uUJposnYRNePLbrhdLr4_TI5gkEqiHJl?usp=sharing)
-- **Power BI Dashboard:** [View Dashboard File](https://github.com/donunobunjo/S-P-Global-Dashboard/blob/main/S%26P%20Dashboard.pbix)
-
----
-
-### 5. Retail Analytics Dashboard
-
-#### Overview
-The **Retail Analytics Power BI Dashboard** provides end-to-end insights into store performance, pricing, sales trends, demand, and inventory management.
-
-The project demonstrates how raw business data can be transformed through **data cleaning, data modeling, DAX, and interactive visualization** into a business intelligence solution that supports data-driven decision-making.
-
-#### Stack
-- Power BI
-- Data Cleaning
-- Data Modeling
-- DAX
-- SQL
-- Exploratory Data Analysis (EDA)
-- Data Visualization
-- Business Intelligence
-
-#### Links
-- **GitHub:** [View Repository](https://github.com/donunobunjo/Retail_sales_and_inventory_dashboard.git)
-
----
-
-## 🧠 Machine Learning Projects
-
-### 6. Customer Segmentation & Spending Behavior Analysis
-
-#### Overview
-This project analyzes customer demographics and spending behavior using **exploratory data analysis, data visualization, and machine learning**.
-
-The analysis explores how factors such as income, age, and gender relate to spending behavior and uses unsupervised learning techniques to identify meaningful customer segments.
-
-The goal is to transform raw customer data into actionable segments that can help businesses better understand and target their customers.
-
-#### Stack
-- Python
-- Pandas
-- NumPy
-- Exploratory Data Analysis (EDA)
-- Data Visualization
-- Feature Engineering
-- Machine Learning
-- Clustering
-- Customer Analytics
-
-#### Links
-- **GitHub:** [View Repository](https://github.com/donunobunjo/customer_analysis_prediction_and_segmentation.git)
-- **Google Colab:** [Open Notebook](https://colab.research.google.com/drive/1p6PbT_motxX2A-AX1AlUQ-GJ7Uo7wJqD?usp=sharing)
-
-
----
-
-### 7. Credit Default Analysis & Prediction
-
-#### Overview
-This project analyzes and predicts **loan default risk** using financial and demographic information.
-
-The project demonstrates an end-to-end machine learning workflow, including exploratory data analysis, feature engineering, model development, classification, and model evaluation. It focuses on identifying factors associated with credit default and building models that classify applicants according to default risk.
-
-#### Stack
-- Python
-- Pandas
-- Exploratory Data Analysis (EDA)
-- Feature Engineering
-- Machine Learning
-- Classification
-- Model Evaluation
-- Data Visualization
-
-#### Links
-- **GitHub:** [View Repository](https://github.com/donunobunjo/credit_default_analysis_and_prediction.git)
-- **Google Colab:** [Open Notebook](https://colab.research.google.com/drive/1NiMOEX1F6q0qwBETuZ4bXSE_YChkaeiU?usp=sharing)
-
-
----
-
-## 🌾 Software Engineering & Agricultural Technology
-
-### 8. Agricultural Technology Platform
-
-#### Overview
-Contributed to a digital platform supporting **smallholder farmers**, integrating backend services and APIs to deliver agricultural content and extension resources.
-
-The platform supported **1,000+ smallholder farmers**, while API and application optimizations helped reduce response times by approximately **20%**.
-
-#### Stack
-- Software Engineering
-- Backend Development
-- REST APIs
-- API Optimization
-- Agricultural Technology
-
-#### Links
-- **GitHub:** 
-- **Google Colab:** 
-- **Loom:** 
-- **Live Demo:** 
-
----
-
-# 🛠️ What I Build
-
-**LLM Applications** → **Fine-Tuning** → **RAG** → **AI Agents** → **Intelligent Search** → **NLP** → **Machine Learning** → **Data Analytics** → **Production APIs**
-
-I'm particularly interested in building AI systems that move beyond notebooks and prototypes into **reliable, useful products that solve real-world problems**.
-
----
-
-# 👤 Author
-
-**Unobunjo Don**  
-AI/ML Engineer • Data Analyst • Trainer
-
-📧 don.unobunjo@gmail.com  
-📱 +234 803 889 1940
-
----
-
-© 2026 Don Unobunjo. All Rights Reserved.
+Check the applicable licenses and terms for the source models, dataset,
+and any deployed services before redistributing model files or using the
+system commercially. In particular, review the [N-ATLaS model
+terms](https://huggingface.co/NCAIR1/N-ATLaS) before integrating or
+deploying it.
