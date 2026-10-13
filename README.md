@@ -171,7 +171,7 @@ channels for account-specific or urgent issues.
     Face](https://huggingface.co/datasets/Donoe/multilingual-nigerian-banking77)
 -   **Translation model:**
     [NCAIR1/N-ATLaS](https://huggingface.co/NCAIR1/N-ATLaS)
--   **GitHub:** Add repository URL after publishing
+-   **GitHub:**
 -   **Live demo:** Not available yet; planned
 
 ## Contributing
